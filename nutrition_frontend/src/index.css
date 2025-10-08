@@ -129,3 +129,23 @@ code {
 .input::placeholder {
   color: rgba(255,255,255,0.45);
 }
+
+/* Responsive behavior:
+   - Hide MobileNav on large screens
+   - Ensure sidebar grid behavior switches at 1024px
+*/
+@media (min-width: 1024px) {
+  /* Hide mobile bottom nav on desktop */
+  nav[aria-label="Bottom navigation"] {
+    display: none !important;
+  }
+}
+
+@media (max-width: 1023.98px) {
+  /* On mobile/tablet:
+     - Layout becomes single column; Sidebar handled as drawer in component.
+   */
+  body {
+    padding-bottom: 60px; /* ensure content isn't hidden behind bottom nav */
+  }
+}

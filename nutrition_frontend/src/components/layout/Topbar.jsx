@@ -5,10 +5,13 @@ import Button from '../common/Button';
  * PUBLIC_INTERFACE
  * Topbar
  * Provides page title area and actions.
+ * - Includes a hamburger to toggle the sidebar on small screens.
  */
-export default function Topbar({ title = 'Welcome', onAction }) {
+export default function Topbar({ title = 'Welcome', onAction, onMenuToggle = () => {} }) {
   return (
     <header
+      role="banner"
+      aria-label="Top navigation"
       style={{
         height: 64,
         borderBottom: '1px solid var(--color-border)',
@@ -17,12 +20,35 @@ export default function Topbar({ title = 'Welcome', onAction }) {
         alignItems: 'center',
         justifyContent: 'space-between',
         padding: '0 16px',
+        position: 'sticky',
+        top: 0,
+        zIndex: 10,
+        backdropFilter: 'saturate(140%) blur(6px)',
       }}
       className="ocean-gradient"
     >
-      <div style={{ fontWeight: 700, fontSize: 16, color: 'var(--color-text)' }}>{title}</div>
-      <div>
-        <Button variant="outline" onClick={onAction}>Action</Button>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        {/* Mobile menu button */}
+        <button
+          aria-label="Open menu"
+          onClick={onMenuToggle}
+          className="btn btn-outline"
+          style={{
+            display: 'inline-flex',
+            width: 40,
+            height: 40,
+            alignItems: 'center',
+            justifyContent: 'center',
+            borderRadius: 'var(--radius-md)',
+          }}
+        >
+          ☰
+        </button>
+        <div style={{ fontWeight: 800, fontSize: 18, color: 'var(--color-text)' }}>{title}</div>
+      </div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <Button aria-label="Notifications" variant="outline" onClick={() => {}}>🔔</Button>
+        <Button aria-label="Quick action" variant="outline" onClick={onAction}>Action</Button>
       </div>
     </header>
   );
