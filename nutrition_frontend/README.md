@@ -61,6 +61,7 @@ Add these to `nutrition_frontend/.env`:
 
 - REACT_APP_SUPABASE_URL
 - REACT_APP_SUPABASE_KEY
+- REACT_APP_SITE_URL (the full preview/site origin used for email redirects, e.g. https://vscode-internal-37918-beta.beta01.cloud.kavia.ai:4000)
 
 Refer to `.env.example` for details. Do not commit real secrets.
 

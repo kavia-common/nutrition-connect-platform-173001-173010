@@ -5,6 +5,9 @@
  * Usage:
  *   node scripts/sendMagicLink.js --email="nutriekspert@gmail.com" --admin
  *
+ * Redirect handling:
+ *   Uses REACT_APP_SITE_URL (or SITE_URL) to build emailRedirectTo -> <SITE_URL>/auth/callback
+ *
  * Requires env:
  *   REACT_APP_SUPABASE_URL
  *   REACT_APP_SUPABASE_KEY (service or anon; service preferred for admin seeding)
