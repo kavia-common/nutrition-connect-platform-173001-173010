@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Card, Loader, Button } from '../../components/common';
+import { Card, Loader, Button, ErrorState } from '../../components/common';
 import { useAuth } from '../../context/AuthContext';
 import { getCoachPortfolio } from '../../lib/analyticsService';
 import {
@@ -49,16 +49,7 @@ export default function CoachAnalytics() {
     return (
       <div className="container">
         <Card>
-          <div
-            className="card"
-            style={{ background: 'rgba(239,68,68,0.12)', borderColor: 'rgba(239,68,68,0.35)' }}
-            data-testid="coach-analytics-error"
-          >
-            {state.error}
-          </div>
-          <div style={{ marginTop: 8 }}>
-            <Button variant="outline" onClick={load}>Retry</Button>
-          </div>
+          <ErrorState message={state.error} onRetry={load} data-testid="coach-analytics-error" />
         </Card>
       </div>
     );

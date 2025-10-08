@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Card, Loader, Button } from '../../components/common';
+import { Card, Loader, Button, ErrorState, EmptyState } from '../../components/common';
 import { useAuth } from '../../context/AuthContext';
 import { getClientProgress } from '../../lib/analyticsService';
 import {
@@ -57,16 +57,7 @@ export default function ClientProgress() {
     return (
       <div className="container">
         <Card>
-          <div
-            className="card"
-            style={{ background: 'rgba(239,68,68,0.12)', borderColor: 'rgba(239,68,68,0.35)' }}
-            data-testid="client-progress-error"
-          >
-            {state.error}
-          </div>
-          <div style={{ marginTop: 8 }}>
-            <Button variant="outline" onClick={load}>Retry</Button>
-          </div>
+          <ErrorState message={state.error} onRetry={load} data-testid="client-progress-error" />
         </Card>
       </div>
     );
@@ -90,9 +81,12 @@ export default function ClientProgress() {
 
       {empty ? (
         <Card style={{ marginTop: 16 }} data-testid="client-progress-empty">
-          <div style={{ color: 'var(--color-text-dim)' }}>
-            No progress data found yet. Start logging check-ins to see your trends here.
-          </div>
+          <EmptyState
+            title="No progress data"
+            description="Start logging check-ins to see your trends here."
+            icon="📉"
+            primaryAction={{ label: 'Refresh', onClick: load, ariaLabel: 'Refresh data' }}
+          />
         </Card>
       ) : (
         <div style={{ marginTop: 16, display: 'grid', gap: 16 }}>

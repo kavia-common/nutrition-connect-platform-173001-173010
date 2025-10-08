@@ -1,6 +1,6 @@
 import React from 'react';
 import { useAuth } from '../context/AuthContext';
-import { Button, Card, Loader } from '../components/common';
+import { Button, Card, Loader, EmptyState, ErrorState } from '../components/common';
 import { ConversationList, ChatPanel } from '../components/chatBarrel';
 import { createConversation, listConversationsForUser } from '../lib/chatService';
 import { Navigate } from 'react-router-dom';
@@ -73,16 +73,32 @@ export default function Chat() {
     <div className="container" style={{ height: 'calc(100vh - 140px)' }}>
       <div style={{ display: 'grid', gridTemplateColumns: '340px 1fr', gap: 16, height: '100%' }}>
         <Card style={{ height: '100%', overflow: 'hidden' }}>
-          <ConversationList
-            conversations={convos}
-            loading={loadingList}
-            empty={empty}
-            error={errorList}
-            currentUserId={userId}
-            role={role}
-            onSelect={(id) => setSelected(id)}
-            onStartNew={handleStartNew}
-          />
+          {loadingList ? (
+            <div style={{ padding: 12 }}><Loader /> Loading conversations...</div>
+          ) : errorList ? (
+            <ErrorState message={errorList} onRetry={loadConversations} />
+          ) : empty ? (
+            <EmptyState
+              title="No conversations"
+              description="Start a new conversation to begin chatting."
+              icon="💬"
+              primaryAction={{
+                label: role === 'coach' ? 'Start with Client' : 'New Conversation',
+                onClick: () => handleStartNew(null),
+              }}
+            />
+          ) : (
+            <ConversationList
+              conversations={convos}
+              loading={false}
+              empty={false}
+              error={null}
+              currentUserId={userId}
+              role={role}
+              onSelect={(id) => setSelected(id)}
+              onStartNew={handleStartNew}
+            />
+          )}
         </Card>
 
         <ChatPanel conversationId={selected} currentUserId={userId} />

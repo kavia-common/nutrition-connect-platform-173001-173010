@@ -90,7 +90,8 @@ export default function Modal({ open, onClose, title, children, size = 'md', ...
       <div
         role="dialog"
         aria-modal="true"
-        aria-label={title}
+        aria-labelledby="modal-title"
+        aria-describedby="modal-desc"
         ref={dialogRef}
         style={{
           width: '100%',
@@ -104,7 +105,7 @@ export default function Modal({ open, onClose, title, children, size = 'md', ...
         {...props}
       >
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
-          <h3 style={{ margin: 0, fontSize: 18 }}>{title}</h3>
+          <h3 id="modal-title" style={{ margin: 0, fontSize: 18 }}>{title}</h3>
           <Button
             aria-label="Close dialog"
             ref={closeButtonRef}
@@ -115,7 +116,7 @@ export default function Modal({ open, onClose, title, children, size = 'md', ...
             ×
           </Button>
         </div>
-        <div style={{ marginTop: 12 }}>{children}</div>
+        <div id="modal-desc" style={{ marginTop: 12 }}>{children}</div>
       </div>
     </div>
   );

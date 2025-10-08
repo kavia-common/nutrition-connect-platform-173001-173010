@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, Suspense } from 'react';
 import Sidebar from './Sidebar';
 import Topbar from './Topbar';
 import MobileNav from './MobileNav';
@@ -104,7 +104,9 @@ export default function Layout({ title = 'Welcome', children }) {
             flex: 1,
           }}
         >
-          {children}
+          <Suspense fallback={<div className="container"><div className="card"><span aria-live="polite">Loading...</span></div></div>}>
+            {children}
+          </Suspense>
         </main>
       </div>
 

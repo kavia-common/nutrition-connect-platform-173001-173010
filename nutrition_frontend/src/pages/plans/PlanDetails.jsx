@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Card, Loader } from '../../components/common';
+import { Button, Card, Loader, ErrorState, EmptyState } from '../../components/common';
 import { fetchAssignmentsForPlan, fetchPlanWithItems } from '../../lib/plansService';
 import { useParams } from 'react-router-dom';
 
@@ -51,15 +51,7 @@ export default function PlanDetails() {
     return (
       <div className="container">
         <Card>
-          <div
-            className="card"
-            style={{
-              background: 'rgba(239,68,68,0.12)',
-              borderColor: 'rgba(239,68,68,0.35)',
-            }}
-          >
-            {error}
-          </div>
+          <ErrorState message={error} onRetry={load} />
         </Card>
       </div>
     );
@@ -101,8 +93,12 @@ export default function PlanDetails() {
         <Card>
           <strong>Sections</strong>
           {!items.length && (
-            <div style={{ marginTop: 8, color: 'var(--color-text-dim)' }}>
-              This plan has no items yet. Use the builder to add sections.
+            <div style={{ marginTop: 8 }}>
+              <EmptyState
+                title="No sections"
+                description="This plan has no items yet. Use the builder to add sections."
+                icon="📄"
+              />
             </div>
           )}
           {!!items.length && (
@@ -130,7 +126,11 @@ export default function PlanDetails() {
 
         <Card>
           <strong>Assigned Clients</strong>
-          {!assignments.length && <div style={{ marginTop: 8, color: 'var(--color-text-dim)' }}>No assignments.</div>}
+          {!assignments.length && (
+            <div style={{ marginTop: 8 }}>
+              <EmptyState title="No assignments" description="This plan is not assigned to any clients yet." icon="👥" />
+            </div>
+          )}
           {!!assignments.length && (
             <div style={{ marginTop: 8, display: 'grid', gap: 8 }}>
               {assignments.map((a) => (

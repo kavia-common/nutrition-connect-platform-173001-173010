@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Button, Card, Drawer, Input, Loader } from '../../components/common';
+import { Button, Card, Drawer, Input, Loader, EmptyState, ErrorState } from '../../components/common';
 import { useAuth } from '../../context/AuthContext';
 import { createPlan, deletePlan, fetchPlansByCoach } from '../../lib/plansService';
 import NutritionBuilder from './NutritionBuilder';
@@ -125,27 +125,27 @@ export default function PlanList() {
 
       {error && !loading && (
         <Card>
-          <div
-            className="card"
-            style={{
-              background: 'rgba(239,68,68,0.12)',
-              borderColor: 'rgba(239,68,68,0.35)',
-            }}
-          >
-            {error}
-          </div>
+          <ErrorState message={error} onRetry={load} />
         </Card>
       )}
 
       {empty && (
         <Card>
-          <div style={{ display: 'grid', gap: 12, alignItems: 'flex-start' }}>
-            <div style={{ fontWeight: 700 }}>No plans yet</div>
-            <div style={{ color: 'var(--color-text-dim)' }}>
-              Get started by creating a new nutrition or workout plan.
-            </div>
-            <NewMenu />
-          </div>
+          <EmptyState
+            title="No plans yet"
+            description="Get started by creating a new nutrition or workout plan."
+            primaryAction={{
+              label: 'New Nutrition Plan',
+              onClick: () => { setDraftMeta({ name: '', notes: '' }); setOpenType('nutrition'); },
+              ariaLabel: 'Create new nutrition plan'
+            }}
+            secondaryAction={{
+              label: 'New Workout Plan',
+              onClick: () => { setDraftMeta({ name: '', notes: '' }); setOpenType('workout'); },
+              ariaLabel: 'Create new workout plan',
+              variant: 'outline'
+            }}
+          />
         </Card>
       )}
 

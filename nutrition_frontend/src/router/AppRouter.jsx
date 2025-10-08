@@ -1,33 +1,42 @@
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
+import { ProtectedRoute, RoleRoute } from './routeGuards';
+import { useAuth } from '../context/AuthContext';
+
+// Non-heavy or already small pages can be direct imports
+import Home from '../pages/Home';
+import Settings from '../pages/Settings';
+import Profile from '../pages/settings/Profile';
+import Notifications from '../pages/settings/Notifications';
+import Billing from '../pages/settings/Billing';
+
+// Auth components (keep eager for auth flows)
 import Login from '../components/auth/Login';
 import SignUp from '../components/auth/SignUp';
 import MagicLink from '../components/auth/MagicLink';
 import ResetPassword from '../components/auth/ResetPassword';
 import AuthCallback from '../components/auth/AuthCallback';
 import AuthError from '../components/auth/AuthError';
-import { ProtectedRoute, RoleRoute } from './routeGuards';
-import Home from '../pages/Home';
-import Dashboard from '../pages/Dashboard';
-import DashboardLanding from '../pages/dashboards/DashboardLanding';
-import ClientDashboard from '../pages/dashboards/ClientDashboard';
-import CoachDashboard from '../pages/dashboards/CoachDashboard';
-import AdminDashboard from '../pages/dashboards/AdminDashboard';
-import Plans from '../pages/Plans';
-import PlanList from '../pages/plans/PlanList';
-import PlanDetails from '../pages/plans/PlanDetails';
-import Chat from '../pages/Chat';
-import Analytics from '../pages/Analytics';
-import ClientProgress from '../pages/analytics/ClientProgress';
-import CoachAnalytics from '../pages/analytics/CoachAnalytics';
-import AdminAnalytics from '../pages/analytics/AdminAnalytics';
-import Settings from '../pages/Settings';
-import Profile from '../pages/settings/Profile';
-import Notifications from '../pages/settings/Notifications';
-import Billing from '../pages/settings/Billing';
-import ClientOnboarding from '../pages/onboarding/ClientOnboarding';
-import CoachOnboarding from '../pages/onboarding/CoachOnboarding';
-import { useAuth } from '../context/AuthContext';
+
+// Lazy-loaded sections (heavier)
+const DashboardLanding = lazy(() => import('../pages/dashboards/DashboardLanding'));
+const ClientDashboard = lazy(() => import('../pages/dashboards/ClientDashboard'));
+const CoachDashboard = lazy(() => import('../pages/dashboards/CoachDashboard'));
+const AdminDashboard = lazy(() => import('../pages/dashboards/AdminDashboard'));
+
+const PlanList = lazy(() => import('../pages/plans/PlanList'));
+const PlanDetails = lazy(() => import('../pages/plans/PlanDetails'));
+
+const Chat = lazy(() => import('../pages/Chat'));
+
+const ClientOnboarding = lazy(() => import('../pages/onboarding/ClientOnboarding'));
+const CoachOnboarding = lazy(() => import('../pages/onboarding/CoachOnboarding'));
+
+// Analytics pages
+const Analytics = lazy(() => import('../pages/Analytics'));
+const ClientProgress = lazy(() => import('../pages/analytics/ClientProgress'));
+const CoachAnalytics = lazy(() => import('../pages/analytics/CoachAnalytics'));
+const AdminAnalytics = lazy(() => import('../pages/analytics/AdminAnalytics'));
 
 /**
  * PUBLIC_INTERFACE
@@ -36,7 +45,8 @@ import { useAuth } from '../context/AuthContext';
  */
 export default function AppRouter() {
   return (
-    <Routes>
+    <Suspense fallback={<div className="container"><div className="card">Loading...</div></div>}>
+      <Routes>
       {/* Public routes */}
       <Route path="/" element={<Home />} />
 
@@ -105,7 +115,8 @@ export default function AppRouter() {
 
       {/* Fallback */}
       <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+      </Routes>
+    </Suspense>
   );
 }
 

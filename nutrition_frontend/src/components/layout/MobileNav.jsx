@@ -18,6 +18,7 @@ export default function MobileNav() {
   return (
     <nav
       aria-label="Bottom navigation"
+      tabIndex={0}
       style={{
         position: 'fixed',
         bottom: 0,

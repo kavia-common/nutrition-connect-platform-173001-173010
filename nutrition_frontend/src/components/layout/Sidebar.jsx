@@ -43,6 +43,7 @@ export default function Sidebar({ isOpen = false, onClose = () => {} }) {
     <nav
       aria-label="Primary"
       ref={containerRef}
+      tabIndex={0}
       style={{
         width: 240,
         background: 'var(--color-surface-2)',

@@ -68,7 +68,8 @@ export default function Drawer({
         ref={panelRef}
         role="dialog"
         aria-modal="true"
-        aria-label={title}
+        aria-labelledby="drawer-title"
+        aria-describedby="drawer-desc"
         style={{
           position: 'absolute',
           top: 0,
@@ -87,12 +88,12 @@ export default function Drawer({
         {...props}
       >
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: 12 }}>
-          <strong style={{ fontSize: 16 }}>{title}</strong>
+          <strong id="drawer-title" style={{ fontSize: 16 }}>{title}</strong>
           <Button ref={initialFocusRef} variant="outline" onClick={onClose} aria-label="Close panel" style={{ width: 36, height: 36, padding: 0 }}>
             ×
           </Button>
         </div>
-        <div style={{ padding: 12, overflow: 'auto' }}>{children}</div>
+        <div id="drawer-desc" style={{ padding: 12, overflow: 'auto' }}>{children}</div>
       </aside>
     </div>
   );
