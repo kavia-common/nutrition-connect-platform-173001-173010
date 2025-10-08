@@ -12,6 +12,8 @@ import ClientDashboard from '../pages/dashboards/ClientDashboard';
 import CoachDashboard from '../pages/dashboards/CoachDashboard';
 import AdminDashboard from '../pages/dashboards/AdminDashboard';
 import Plans from '../pages/Plans';
+import PlanList from '../pages/plans/PlanList';
+import PlanDetails from '../pages/plans/PlanDetails';
 import Chat from '../pages/Chat';
 import Analytics from '../pages/Analytics';
 import Settings from '../pages/Settings';
@@ -59,7 +61,9 @@ export default function AppRouter() {
         <Route path="/dashboard/client" element={<ClientDashboard />} />
         <Route path="/dashboard/coach" element={<CoachDashboard />} />
         <Route path="/dashboard/admin" element={<AdminDashboard />} />
-        <Route path="/plans" element={<Plans />} />
+        <Route path="/plans" element={<PlanList />} />
+        <Route path="/plans/new" element={<PlanList />} />
+        <Route path="/plans/:id" element={<PlanDetails />} />
         <Route path="/chat" element={<Chat />} />
         {/* Example role-guarded route for analytics (coaches/admins only) */}
         <Route element={<RoleRoute roles={['coach', 'admin']} />}>
