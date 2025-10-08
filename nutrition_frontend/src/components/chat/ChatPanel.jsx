@@ -1,12 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Card, Loader } from '../common';
-import { listMessages, sendMessage, subscribeToMessages } from '../../lib/chatService';
+import { listMessages, sendMessage } from '../../lib/chatService';
+import { useRealtime } from '../../hooks';
 import MessageInput from './MessageInput';
 
 export default function ChatPanel({ conversationId, currentUserId }) {
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
-  const subRef = useRef(null);
   const listRef = useRef(null);
 
   useEffect(() => {
@@ -17,26 +17,29 @@ export default function ChatPanel({ conversationId, currentUserId }) {
       setLoading(false);
       scrollToBottom();
     });
-
-    // subscribe realtime
-    if (subRef.current) {
-      try { subRef.current.unsubscribe(); } catch {}
-      subRef.current = null;
-    }
-    const sub = subscribeToMessages(conversationId, {
-      onInsert: (row) => {
-        setMessages((prev) => [...prev, row]);
-        scrollToBottom();
-      },
-    });
-    subRef.current = sub;
-
-    return () => {
-      try { subRef.current?.unsubscribe?.(); } catch {}
-      subRef.current = null;
-    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [conversationId]);
+
+  useRealtime(
+    conversationId ? `messages-conv-${conversationId}` : null,
+    conversationId
+      ? [
+          {
+            event: 'INSERT',
+            schema: 'public',
+            table: 'messages',
+            filter: `conversation_id=eq.${conversationId}`,
+            handler: (payload) => {
+              if (payload?.new) {
+                setMessages((prev) => [...prev, payload.new]);
+                scrollToBottom();
+              }
+            },
+          },
+        ]
+      : [],
+    Boolean(conversationId)
+  );
 
   function scrollToBottom() {
     setTimeout(() => {
