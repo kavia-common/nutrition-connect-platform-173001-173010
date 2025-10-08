@@ -1,0 +1,46 @@
+{
+  "auth": {
+    "role": {
+      "coach": "Coach",
+      "client": "Klijent"
+    },
+    "login": {
+      "title": "Dobrodošli natrag",
+      "subtitle": "Prijavite se u svoj Nutrition Connect račun.",
+      "email": "Email",
+      "password": "Lozinka",
+      "placeholderEmail": "vi@primjer.com",
+      "placeholderPassword": "Vaša lozinka",
+      "submit": "Prijava",
+      "submitting": "Prijava u tijeku...",
+      "magic": "Prijava putem Magic Linka",
+      "forgot": "Zaboravljena lozinka?",
+      "toSignup": "Kreiraj račun",
+      "success": "Uspješna prijava! Preusmjeravanje...",
+      "infoCheckEmail": "Provjerite e-mail za potvrdu ako je potrebno.",
+      "failed": "Prijava nije uspjela",
+      "tabsCoach": "Coach",
+      "tabsClient": "Klijent"
+    },
+    "signup": {
+      "title": "Kreirajte svoj račun",
+      "subtitle": "Pridružite se Nutrition Connectu za suradnju s coachom i upravljanje planovima.",
+      "email": "Email",
+      "password": "Lozinka",
+      "placeholderEmail": "vi@primjer.com",
+      "placeholderPassword": "Kreirajte lozinku",
+      "submit": "Registracija",
+      "submitting": "Kreiranje...",
+      "toLoginPrefix": "Već imate račun?",
+      "toLogin": "Prijava",
+      "successConfirm": "Provjerite inbox i potvrdite e-mail, zatim se prijavite.",
+      "failed": "Registracija nije uspjela",
+      "tabsCoach": "Coach",
+      "tabsClient": "Klijent",
+      "roleSelectLabel": "Odaberite ulogu"
+    },
+    "messages": {
+      "willRedirect": "Preusmjeravanje..."
+    }
+  }
+}

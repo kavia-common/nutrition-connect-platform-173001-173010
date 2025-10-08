@@ -15,6 +15,8 @@ const AuthContext = createContext({
   // methods (populated by provider)
   signIn: async () => ({ data: null, error: null }),
   signUp: async () => ({ data: null, error: null }),
+  // Allow passing a preferred role from auth screens
+  completePostLoginRouting: async () => ({ redirected: false }),
   signOut: async () => ({ error: null }),
   sendMagicLink: async () => ({ data: null, error: null }),
   resetPassword: async () => ({ data: null, error: null }),
@@ -139,14 +141,53 @@ export function AuthProvider({ children }) {
 
   // Auth action methods
 
+  async function applyRoleIfMissing(targetRole) {
+    // Ensure we only set role if it's missing
+    try {
+      if (!user?.id) return;
+      const currentRole = profile?.role;
+      if (!currentRole && (targetRole === 'coach' || targetRole === 'client')) {
+        const { upsertProfile } = await import('../lib/supabaseServices');
+        await upsertProfile(user.id, { role: targetRole, onboarding_complete: false });
+        await refreshProfile();
+      }
+    } catch (e) {
+      // ignore role apply errors to not block login flow
+      // eslint-disable-next-line no-console
+      console.warn('applyRoleIfMissing warning:', e?.message || e);
+    }
+  }
+
+  function routeAfterLogin({ selectedRole }) {
+    // Decide destination based on final profile state
+    const finalRole = profile?.role || selectedRole || 'client';
+    const isCoach = finalRole === 'coach';
+    const isClient = finalRole === 'client';
+
+    const done = profile?.onboarding_complete === true;
+    if (!done) {
+      return isCoach ? '/onboarding/coach' : '/onboarding/client';
+    }
+    if (isCoach) return '/dashboard/coach';
+    if (finalRole === 'admin') return '/dashboard/admin';
+    if (isClient) return '/dashboard/client';
+    return '/dashboard';
+  }
+
   // PUBLIC_INTERFACE
-  async function signIn({ email, password }) {
+  async function signIn({ email, password, targetRole }) {
     /**
      * Sign in with email/password using Supabase.
      * Returns { data, error }
      */
     try {
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      // Try to apply target role in background (if provided)
+      if (data?.user && targetRole) {
+        // temporary set user state to allow applyRoleIfMissing to work immediately
+        setUser((prev) => prev || data.user);
+        await applyRoleIfMissing(targetRole);
+      }
       return { data, error };
     } catch (e) {
       return { data: null, error: e };
@@ -154,7 +195,7 @@ export function AuthProvider({ children }) {
   }
 
   // PUBLIC_INTERFACE
-  async function signUp({ email, password, options = {} }) {
+  async function signUp({ email, password, options = {}, targetRole }) {
     /**
      * Sign up with email/password using Supabase.
      * Returns { data, error }
@@ -165,10 +206,14 @@ export function AuthProvider({ children }) {
       const resolvedGetURL = typeof getURL === 'function' ? getURL : (typeof getURLDefault === 'function' ? getURLDefault : (p) => (window?.location ? `${window.location.origin}${p || ''}` : `http://localhost:3000${p || ''}`));
       const emailRedirectTo =
         options.emailRedirectTo || resolvedGetURL('/auth/callback');
+      const signupData = { ...(options.data || {}) };
+      if (targetRole && !signupData.role) {
+        signupData.role = targetRole;
+      }
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
-        options: { emailRedirectTo, data: options.data },
+        options: { emailRedirectTo, data: signupData },
       });
       return { data, error };
     } catch (e) {
@@ -233,6 +278,23 @@ export function AuthProvider({ children }) {
   }
 
   // PUBLIC_INTERFACE
+  async function completePostLoginRouting({ selectedRole } = {}) {
+    /**
+     * Ensures role is set (if missing) and returns a path to navigate to based on onboarding/profile state.
+     */
+    try {
+      if (selectedRole) {
+        await applyRoleIfMissing(selectedRole);
+      }
+      // refresh local profile to latest
+      await refreshProfile();
+      return { redirected: true, path: routeAfterLogin({ selectedRole }) };
+    } catch (e) {
+      return { redirected: false, path: '/dashboard' };
+    }
+  }
+
+  // PUBLIC_INTERFACE
   async function refreshProfile() {
     try {
       if (!user?.id) return { profile: null, error: null };
@@ -259,6 +321,7 @@ export function AuthProvider({ children }) {
       sendMagicLink,
       resetPassword,
       refreshProfile,
+      completePostLoginRouting,
     }),
     [user, profile, loading]
   );

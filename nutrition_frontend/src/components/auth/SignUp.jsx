@@ -3,7 +3,8 @@ import Card from '../common/Card';
 import Input from '../common/Input';
 import Button from '../common/Button';
 import { useAuth } from '../../context/AuthContext';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
+import { t } from '../../utils/i18n';
 
 /**
  * PUBLIC_INTERFACE
@@ -12,6 +13,9 @@ import { Link } from 'react-router-dom';
  */
 export default function SignUp() {
   const { signUp } = useAuth();
+  const [searchParams] = useSearchParams();
+  const initialTab = searchParams.get('role') === 'coach' ? 'coach' : 'client';
+  const [roleTab, setRoleTab] = useState(initialTab);
   const [form, setForm] = useState({ email: '', password: '' });
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState(null);
@@ -26,19 +30,18 @@ export default function SignUp() {
       email: form.email,
       password: form.password,
       options: {
-        // Best practice: Use SITE_URL env in deployment
         emailRedirectTo: `${getURL()}auth/login`,
         data: {},
       },
+      targetRole: roleTab,
     });
 
     if (error) {
-      setMessage({ type: 'error', text: error.message || 'Sign up failed' });
+      setMessage({ type: 'error', text: error.message || t('auth.signup.failed') });
     } else {
-      // Supabase v2 usually requires email confirmation depending on project settings.
       setMessage({
         type: 'success',
-        text: 'Check your inbox to confirm your email. Then return to log in.',
+        text: t('auth.signup.successConfirm'),
       });
     }
     setSubmitting(false);
@@ -47,10 +50,48 @@ export default function SignUp() {
   return (
     <div className="container" style={{ maxWidth: 480 }}>
       <Card>
-        <h2 style={{ margin: 0, marginBottom: 8 }}>Create your account</h2>
-        <p style={{ color: 'var(--color-text-dim)', marginTop: 0, marginBottom: 16 }}>
-          Join Nutrition Connect to work with your coach and manage your plans.
-        </p>
+        <div style={{ display: 'grid', gap: 8 }}>
+          <div style={{ display: 'flex', gap: 6, background: 'rgba(255,255,255,0.05)', padding: 4, borderRadius: 10, border: '1px solid var(--color-border)' }}>
+            <button
+              type="button"
+              onClick={() => setRoleTab('coach')}
+              style={{
+                flex: 1,
+                padding: '10px 12px',
+                borderRadius: 8,
+                border: '1px solid',
+                borderColor: roleTab === 'coach' ? 'var(--color-primary)' : 'transparent',
+                background: roleTab === 'coach' ? 'rgba(249,115,22,0.15)' : 'transparent',
+                color: 'var(--color-text)',
+                fontWeight: 700,
+                cursor: 'pointer',
+              }}
+            >
+              {t('auth.signup.tabsCoach')}
+            </button>
+            <button
+              type="button"
+              onClick={() => setRoleTab('client')}
+              style={{
+                flex: 1,
+                padding: '10px 12px',
+                borderRadius: 8,
+                border: '1px solid',
+                borderColor: roleTab === 'client' ? 'var(--color-secondary)' : 'transparent',
+                background: roleTab === 'client' ? 'rgba(16,185,129,0.15)' : 'transparent',
+                color: 'var(--color-text)',
+                fontWeight: 700,
+                cursor: 'pointer',
+              }}
+            >
+              {t('auth.signup.tabsClient')}
+            </button>
+          </div>
+          <h2 style={{ margin: 0 }}>{t('auth.signup.title')}</h2>
+          <p style={{ color: 'var(--color-text-dim)', marginTop: 0 }}>
+            {t('auth.signup.subtitle')}
+          </p>
+        </div>
         {message && (
           <div
             className="card"
@@ -75,29 +116,29 @@ export default function SignUp() {
         )}
         <form onSubmit={handleSubmit} style={{ display: 'grid', gap: 12 }}>
           <Input
-            label="Email"
+            label={t('auth.signup.email')}
             type="email"
-            placeholder="you@example.com"
+            placeholder={t('auth.signup.placeholderEmail')}
             value={form.email}
             onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
             required
           />
           <Input
-            label="Password"
+            label={t('auth.signup.password')}
             type="password"
-            placeholder="Create a password"
+            placeholder={t('auth.signup.placeholderPassword')}
             value={form.password}
             onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))}
             required
           />
           <Button type="submit" disabled={submitting}>
-            {submitting ? 'Creating...' : 'Sign Up'}
+            {submitting ? t('auth.signup.submitting') : t('auth.signup.submit')}
           </Button>
         </form>
         <div style={{ marginTop: 12, fontSize: 14 }}>
-          Already have an account?{' '}
-          <Link to="/auth/login" style={{ color: 'var(--color-primary)', fontWeight: 700 }}>
-            Sign in
+          {t('auth.signup.toLoginPrefix')}{' '}
+          <Link to={`/auth/login?role=${roleTab}`} style={{ color: 'var(--color-primary)', fontWeight: 700 }}>
+            {t('auth.signup.toLogin')}
           </Link>
         </div>
       </Card>
