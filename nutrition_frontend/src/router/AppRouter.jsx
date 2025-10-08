@@ -1,43 +1,60 @@
 import React from 'react';
-import { Routes, Route } from 'react-router-dom';
-import Placeholder from '../pages/Placeholder';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import Login from '../components/auth/Login';
 import SignUp from '../components/auth/SignUp';
 import MagicLink from '../components/auth/MagicLink';
 import ResetPassword from '../components/auth/ResetPassword';
+import { ProtectedRoute, RoleRoute } from './routeGuards';
+import Home from '../pages/Home';
+import Dashboard from '../pages/Dashboard';
+import Plans from '../pages/Plans';
+import Chat from '../pages/Chat';
+import Analytics from '../pages/Analytics';
+import Settings from '../pages/Settings';
+import ClientOnboarding from '../pages/onboarding/ClientOnboarding';
+import CoachOnboarding from '../pages/onboarding/CoachOnboarding';
 
 /**
  * PUBLIC_INTERFACE
  * AppRouter
- * Provides top-level route mappings for the application.
+ * Provides top-level route mappings for the application with auth and role guards.
  */
 export default function AppRouter() {
-  const routes = [
-    { path: '/', title: 'Home' },
-    { path: '/dashboard', title: 'Dashboard' },
-    { path: '/onboarding', title: 'Onboarding' },
-    { path: '/plans', title: 'Plans' },
-    { path: '/chat', title: 'Chat' },
-    { path: '/analytics', title: 'Analytics' },
-    { path: '/settings', title: 'Settings' },
-  ];
-
   return (
     <Routes>
+      {/* Public routes */}
+      <Route path="/" element={<Home />} />
+
       {/* Auth routes */}
       <Route path="/auth/login" element={<Login />} />
       <Route path="/auth/signup" element={<SignUp />} />
       <Route path="/auth/magic-link" element={<MagicLink />} />
       <Route path="/auth/reset" element={<ResetPassword />} />
 
-      {/* App routes */}
-      {routes.map((r) => (
-        <Route
-          key={r.path}
-          path={r.path}
-          element={<Placeholder title={r.title} description={`${r.title} page`} />}
-        />
-      ))}
+      {/* Onboarding routes: allow access while onboarding, no redirect away */}
+      <Route element={<ProtectedRoute allowOnboarding />}>
+        <Route path="/onboarding">
+          {/* Index could redirect based on role to the specific path */}
+          <Route index element={<Navigate to="client" replace />} />
+          <Route path="client" element={<ClientOnboarding />} />
+          <Route path="coach" element={<CoachOnboarding />} />
+        </Route>
+      </Route>
+
+      {/* Protected application routes - onboarding incomplete users are redirected */}
+      <Route element={<ProtectedRoute />}>
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/plans" element={<Plans />} />
+        <Route path="/chat" element={<Chat />} />
+        {/* Example role-guarded route for analytics (coaches/admins only) */}
+        <Route element={<RoleRoute roles={['coach', 'admin']} />}>
+          <Route path="/analytics" element={<Analytics />} />
+        </Route>
+        <Route path="/settings" element={<Settings />} />
+      </Route>
+
+      {/* Fallback */}
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 }
