@@ -19,9 +19,12 @@
 import { createClient } from '@supabase/supabase-js';
 import crypto from 'crypto';
 
-// Helper to get env vars with fallback
+/**
+ * Helper to get env vars with optional fallback name.
+ * For this project, we try both SUPABASE_* and REACT_APP_SUPABASE_*.
+ */
 function getEnv(name, fallbackName) {
-  return process.env[name] || process.env[fallbackName] || '';
+  return process.env[name] || (fallbackName ? process.env[fallbackName] : '') || '';
 }
 
 // Deterministic UUID based on namespace so re-runs keep IDs stable.
@@ -36,7 +39,10 @@ async function main() {
   const SUPABASE_KEY = getEnv('SUPABASE_KEY', 'REACT_APP_SUPABASE_KEY');
 
   if (!SUPABASE_URL || !SUPABASE_KEY) {
-    console.error('Missing Supabase env. Please set SUPABASE_URL/SUPABASE_KEY or REACT_APP_SUPABASE_URL/REACT_APP_SUPABASE_KEY.');
+    console.error('Missing Supabase env.');
+    console.error('- Preferred (frontend/CRA): set REACT_APP_SUPABASE_URL and REACT_APP_SUPABASE_KEY in nutrition_frontend/.env');
+    console.error('- Legacy/Node: SUPABASE_URL and SUPABASE_KEY are also supported.');
+    console.error('Tip: Copy .env.example to .env and fill in your Supabase credentials.');
     process.exit(1);
   }
 

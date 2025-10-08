@@ -53,6 +53,17 @@ Common components include:
 - Navigation (`.navbar`)
 - Typography (`.title`, `.subtitle`, `.description`)
 
+## Supabase environment variables
+
+This app is built with Create React App. Frontend env vars must be prefixed with REACT_APP_ to be available in the browser.
+
+Add these to `nutrition_frontend/.env`:
+
+- REACT_APP_SUPABASE_URL
+- REACT_APP_SUPABASE_KEY
+
+Refer to `.env.example` for details. Do not commit real secrets.
+
 ## Seeding sample data (Supabase)
 
 For quick UI validation, you can seed sample data into your Supabase project.
@@ -65,7 +76,9 @@ Then run from the `nutrition_frontend` directory:
 
 - node scripts/seedSupabase.js
 
-Alternatively, in development mode, a "Seed Sample Data" button is available in Settings pages (Profile, Billing, Notifications) that performs a minimal seed using the browser client.
+Notes:
+- The seed script supports both SUPABASE_URL/SUPABASE_KEY and REACT_APP_SUPABASE_URL/REACT_APP_SUPABASE_KEY. Prefer the CRA-prefixed vars for consistency.
+- Alternatively, in development mode, a "Seed Sample Data" button is available in Settings pages (Profile, Billing, Notifications) that performs a minimal seed using the browser client.
 
 See SUPABASE_SETUP.md for detailed instructions and table expectations.
 

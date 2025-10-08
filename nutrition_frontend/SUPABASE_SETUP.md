@@ -9,11 +9,13 @@ Create a `.env` file in `nutrition_frontend/` with:
 - REACT_APP_SUPABASE_URL=your_supabase_url
 - REACT_APP_SUPABASE_KEY=your_supabase_anon_or_service_key
 
-Note: For client-side usage, the anonymous (anon) public key is recommended. For Node seeding, you may use either:
-- SUPABASE_URL / SUPABASE_KEY, or
-- REACT_APP_SUPABASE_URL / REACT_APP_SUPABASE_KEY
+Why REACT_APP_*? Create React App only exposes environment variables to the browser if they start with REACT_APP_. This is required for the frontend to initialize Supabase.
 
-The seeding script will read SUPABASE_URL/SUPABASE_KEY and fall back to REACT_APP_SUPABASE_URL/REACT_APP_SUPABASE_KEY.
+Node seeding:
+- Preferred: use REACT_APP_SUPABASE_URL / REACT_APP_SUPABASE_KEY (already in your .env).
+- Supported legacy: SUPABASE_URL / SUPABASE_KEY (the seed script will also look for these and fall back).
+
+The seeding script first tries SUPABASE_URL/SUPABASE_KEY, and if not found, falls back to REACT_APP_SUPABASE_URL/REACT_APP_SUPABASE_KEY.
 
 ## Database Tables Expected
 
