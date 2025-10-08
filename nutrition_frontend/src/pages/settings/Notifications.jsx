@@ -1,13 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Card, Button } from '../../components/common';
+import { useAuth } from '../../context/AuthContext';
+import { runMinimalDevSeed } from '../../lib/devSeedHelper';
 
 /**
  * PUBLIC_INTERFACE
  * Notifications
  * Placeholder for user notification preferences.
  * Displays simple toggles stored in local component state for now.
+ * Adds a developer-only seeding button in development.
  */
 export default function Notifications() {
+  const { profile } = useAuth() || {};
   const [prefs, setPrefs] = useState({
     email_updates: true,
     push_messages: false,
@@ -15,6 +19,9 @@ export default function Notifications() {
   });
   const [saving, setSaving] = useState(false);
   const [status, setStatus] = useState({ error: null, success: false });
+
+  const [busy, setBusy] = useState(false);
+  const [seedStatus, setSeedStatus] = useState('');
 
   function toggle(name) {
     setPrefs((p) => ({ ...p, [name]: !p[name] }));
@@ -34,6 +41,24 @@ export default function Notifications() {
       setSaving(false);
     }
   }
+
+  const handleSeed = useCallback(async () => {
+    if (process.env.NODE_ENV !== 'development') return;
+    if (!profile?.id) {
+      setSeedStatus('Sign in to run dev seed.');
+      return;
+    }
+    setBusy(true);
+    setSeedStatus('');
+    try {
+      await runMinimalDevSeed({ id: profile.id, role: profile.role || 'client' });
+      setSeedStatus('Seeded minimal sample data for notifications/chat.');
+    } catch (e) {
+      setSeedStatus(`Seed failed: ${e?.message || 'unknown error'}`);
+    } finally {
+      setBusy(false);
+    }
+  }, [profile?.id, profile?.role]);
 
   return (
     <div className="container" data-testid="settings-notifications-page">
@@ -84,6 +109,17 @@ export default function Notifications() {
           </div>
         </div>
       </Card>
+
+      {process.env.NODE_ENV === 'development' && (
+        <Card style={{ marginTop: 16 }}>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+            <Button onClick={handleSeed} disabled={busy} variant="outline">
+              {busy ? 'Seeding…' : 'Seed Sample Data (Dev)'}
+            </Button>
+            {seedStatus && <span style={{ color: 'var(--text-secondary)' }}>{seedStatus}</span>}
+          </div>
+        </Card>
+      )}
     </div>
   );
 }

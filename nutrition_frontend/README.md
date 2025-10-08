@@ -4,10 +4,10 @@ This project provides a minimal React template with a clean, modern UI and minim
 
 ## Features
 
-- **Lightweight**: No heavy UI frameworks - uses only vanilla CSS and React
-- **Modern UI**: Clean, responsive design with KAVIA brand styling
-- **Fast**: Minimal dependencies for quick loading times
-- **Simple**: Easy to understand and modify
+- Lightweight: No heavy UI frameworks - uses only vanilla CSS and React
+- Modern UI: Clean, responsive design with KAVIA brand styling
+- Fast: Minimal dependencies for quick loading times
+- Simple: Easy to understand and modify
 
 ## Getting Started
 
@@ -16,7 +16,7 @@ In the project directory, you can run:
 ### `npm start`
 
 Runs the app in development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+Open http://localhost:3000 to view it in your browser.
 
 ### `npm test`
 
@@ -53,30 +53,46 @@ Common components include:
 - Navigation (`.navbar`)
 - Typography (`.title`, `.subtitle`, `.description`)
 
+## Seeding sample data (Supabase)
+
+For quick UI validation, you can seed sample data into your Supabase project.
+
+- Ensure environment variables are set in `.env`:
+  - REACT_APP_SUPABASE_URL
+  - REACT_APP_SUPABASE_KEY
+
+Then run from the `nutrition_frontend` directory:
+
+- node scripts/seedSupabase.js
+
+Alternatively, in development mode, a "Seed Sample Data" button is available in Settings pages (Profile, Billing, Notifications) that performs a minimal seed using the browser client.
+
+See SUPABASE_SETUP.md for detailed instructions and table expectations.
+
 ## Learn More
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+To learn React, check out the React documentation.
 
 ### Code Splitting
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+This section has moved here: https://facebook.github.io/create-react-app/docs/code-splitting
 
 ### Analyzing the Bundle Size
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+This section has moved here: https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size
 
 ### Making a Progressive Web App
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+This section has moved here: https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app
 
 ### Advanced Configuration
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+This section has moved here: https://facebook.github.io/create-react-app/docs/advanced-configuration
 
 ### Deployment
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+This section has moved here: https://facebook.github.io/create-react-app/docs/deployment
 
 ### `npm run build` fails to minify
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify

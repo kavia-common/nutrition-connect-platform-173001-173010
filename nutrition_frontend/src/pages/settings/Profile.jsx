@@ -1,18 +1,23 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Card, Input, Button, Loader } from '../../components/common';
 import { useAuth } from '../../context/AuthContext';
 import { upsertProfile } from '../../lib/supabaseServices';
+import { runMinimalDevSeed } from '../../lib/devSeedHelper';
 
 /**
  * PUBLIC_INTERFACE
  * Profile
  * Basic account profile editing: display name and avatar URL.
  * Integrates with Supabase profiles table via upsertProfile.
+ * Adds a developer-only seeding button in development.
  */
 export default function Profile() {
   const { user, profile, refreshProfile } = useAuth();
   const [form, setForm] = useState({ full_name: '', avatar_url: '' });
   const [state, setState] = useState({ loading: false, error: null, success: false });
+
+  const [seeding, setSeeding] = useState(false);
+  const [seedMsg, setSeedMsg] = useState('');
 
   useEffect(() => {
     setForm({
@@ -37,6 +42,24 @@ export default function Profile() {
     setState({ loading: false, error: null, success: true });
     setTimeout(() => setState((s) => ({ ...s, success: false })), 2000);
   }
+
+  const handleSeed = useCallback(async () => {
+    if (process.env.NODE_ENV !== 'development') return;
+    if (!profile?.id) {
+      setSeedMsg('Sign in to run dev seed.');
+      return;
+    }
+    setSeeding(true);
+    setSeedMsg('');
+    try {
+      const res = await runMinimalDevSeed({ id: profile.id, role: profile.role || 'client' });
+      setSeedMsg(`Seeded. Plan ${res.planId.slice(0, 8)}…, Conversation ${res.conversationId.slice(0, 8)}…`);
+    } catch (e) {
+      setSeedMsg(`Seed failed: ${e?.message || 'unknown error'}`);
+    } finally {
+      setSeeding(false);
+    }
+  }, [profile?.id, profile?.role]);
 
   if (!user) {
     return (
@@ -97,6 +120,17 @@ export default function Profile() {
           </div>
         </form>
       </Card>
+
+      {process.env.NODE_ENV === 'development' && (
+        <Card style={{ marginTop: 16 }}>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+            <Button onClick={handleSeed} disabled={seeding} variant="outline">
+              {seeding ? 'Seeding…' : 'Seed Sample Data (Dev)'}
+            </Button>
+            {seedMsg && <span style={{ color: 'var(--text-secondary)' }}>{seedMsg}</span>}
+          </div>
+        </Card>
+      )}
     </div>
   );
 }
