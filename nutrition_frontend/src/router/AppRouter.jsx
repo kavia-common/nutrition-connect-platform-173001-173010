@@ -18,6 +18,9 @@ import PlanList from '../pages/plans/PlanList';
 import PlanDetails from '../pages/plans/PlanDetails';
 import Chat from '../pages/Chat';
 import Analytics from '../pages/Analytics';
+import ClientProgress from '../pages/analytics/ClientProgress';
+import CoachAnalytics from '../pages/analytics/CoachAnalytics';
+import AdminAnalytics from '../pages/analytics/AdminAnalytics';
 import Settings from '../pages/Settings';
 import ClientOnboarding from '../pages/onboarding/ClientOnboarding';
 import CoachOnboarding from '../pages/onboarding/CoachOnboarding';
@@ -69,9 +72,25 @@ export default function AppRouter() {
         <Route path="/plans/new" element={<PlanList />} />
         <Route path="/plans/:id" element={<PlanDetails />} />
         <Route path="/chat" element={<Chat />} />
-        {/* Example role-guarded route for analytics (coaches/admins only) */}
-        <Route element={<RoleRoute roles={['coach', 'admin']} />}>
-          <Route path="/analytics" element={<Analytics />} />
+        {/* Analytics routes: role-based landing and specific views */}
+        <Route path="/analytics">
+          {/* Role-based landing determines where to send user */}
+          <Route
+            index
+            element={<RoleBasedAnalyticsRedirect />}
+          />
+          {/* Client analytics (clients only) */}
+          <Route element={<RoleRoute roles={['client']} />}>
+            <Route path="client" element={<ClientProgress />} />
+          </Route>
+          {/* Coach analytics (coaches only) */}
+          <Route element={<RoleRoute roles={['coach']} />}>
+            <Route path="coach" element={<CoachAnalytics />} />
+          </Route>
+          {/* Admin analytics (admins only) */}
+          <Route element={<RoleRoute roles={['admin']} />}>
+            <Route path="admin" element={<AdminAnalytics />} />
+          </Route>
         </Route>
         <Route path="/settings" element={<Settings />} />
       </Route>
@@ -92,4 +111,17 @@ function RoleBasedOnboardingRedirect() {
   const role = profile?.role || 'client';
   const target = role === 'coach' ? '/onboarding/coach' : '/onboarding/client';
   return <Navigate to={target} replace />;
+}
+
+/**
+ * PUBLIC_INTERFACE
+ * RoleBasedAnalyticsRedirect
+ * Redirects to analytics page by role.
+ */
+function RoleBasedAnalyticsRedirect() {
+  const { profile } = useAuth();
+  const role = profile?.role || 'client';
+  if (role === 'coach') return <Navigate to="/analytics/coach" replace />;
+  if (role === 'admin') return <Navigate to="/analytics/admin" replace />;
+  return <Navigate to="/analytics/client" replace />;
 }
