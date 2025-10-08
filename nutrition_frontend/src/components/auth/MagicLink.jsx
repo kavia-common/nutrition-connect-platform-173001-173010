@@ -20,10 +20,11 @@ export default function MagicLink() {
     e.preventDefault();
     setSubmitting(true);
     setMessage(null);
+    const { getURL } = await import('../../utils/getURL');
     const { error } = await sendMagicLink({
       email,
       options: {
-        emailRedirectTo: `${window.location.origin}/auth/login`,
+        emailRedirectTo: `${getURL()}auth/login`,
       },
     });
     if (error) {

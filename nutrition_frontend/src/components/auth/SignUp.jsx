@@ -21,12 +21,13 @@ export default function SignUp() {
     setSubmitting(true);
     setMessage(null);
 
+    const { getURL } = await import('../../utils/getURL');
     const { data, error } = await signUp({
       email: form.email,
       password: form.password,
       options: {
-        // Best practice: Use SITE_URL env in deployment; fallback to window.location.origin here
-        emailRedirectTo: `${window.location.origin}/auth/login`,
+        // Best practice: Use SITE_URL env in deployment
+        emailRedirectTo: `${getURL()}auth/login`,
         data: {},
       },
     });

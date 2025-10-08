@@ -21,7 +21,8 @@ export default function ResetPassword() {
     setSubmitting(true);
     setMessage(null);
 
-    const { error } = await resetPassword({ email });
+    const { getURL } = await import('../../utils/getURL');
+    const { error } = await resetPassword({ email, redirectTo: `${getURL()}auth/login` });
     if (error) {
       setMessage({ type: 'error', text: error.message || 'Failed to send reset email' });
     } else {

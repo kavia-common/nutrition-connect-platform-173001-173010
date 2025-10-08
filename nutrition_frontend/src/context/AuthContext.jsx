@@ -141,9 +141,10 @@ export function AuthProvider({ children }) {
      * emailRedirectTo should be set by caller; will fallback to window.location.origin if not provided.
      */
     try {
+      const { getURL } = await import('../utils/getURL');
       const emailRedirectTo =
         options.emailRedirectTo ||
-        `${window.location.origin}/auth/login`;
+        `${getURL()}auth/login`;
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -179,9 +180,10 @@ export function AuthProvider({ children }) {
      * Returns { data, error }
      */
     try {
+      const { getURL } = await import('../utils/getURL');
       const emailRedirectTo =
         options.emailRedirectTo ||
-        `${window.location.origin}/auth/login`;
+        `${getURL()}auth/login`;
       const { data, error } = await supabase.auth.signInWithOtp({
         email,
         options: { emailRedirectTo, shouldCreateUser: true },
@@ -199,7 +201,8 @@ export function AuthProvider({ children }) {
      * Returns { data, error }
      */
     try {
-      const redirectTo = `${window.location.origin}/auth/login`;
+      const { getURL } = await import('../utils/getURL');
+      const redirectTo = `${getURL()}auth/login`;
       const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo,
       });

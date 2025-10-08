@@ -4,6 +4,8 @@ import Login from '../components/auth/Login';
 import SignUp from '../components/auth/SignUp';
 import MagicLink from '../components/auth/MagicLink';
 import ResetPassword from '../components/auth/ResetPassword';
+import AuthCallback from '../components/auth/AuthCallback';
+import AuthError from '../components/auth/AuthError';
 import { ProtectedRoute, RoleRoute } from './routeGuards';
 import Home from '../pages/Home';
 import Dashboard from '../pages/Dashboard';
@@ -37,6 +39,8 @@ export default function AppRouter() {
       <Route path="/auth/signup" element={<SignUp />} />
       <Route path="/auth/magic-link" element={<MagicLink />} />
       <Route path="/auth/reset" element={<ResetPassword />} />
+      <Route path="/auth/callback" element={<AuthCallback />} />
+      <Route path="/auth/error" element={<AuthError />} />
 
       {/* Onboarding routes: allow access while onboarding, no redirect away */}
       <Route element={<ProtectedRoute allowOnboarding />}>
