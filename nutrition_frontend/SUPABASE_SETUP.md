@@ -20,7 +20,7 @@ The seeding script first tries SUPABASE_URL/SUPABASE_KEY, and if not found, fall
 ## Database Tables Expected
 
 The seed expects the following tables/columns (names can be adapted if your schema differs):
-- profiles: id (uuid, PK), role (text), display_name (text), onboarding_complete (bool), updated_at (timestamptz)
+- profiles: id (uuid, PK), email (text), role (text), display_name (text), onboarding_complete (bool), updated_at (timestamptz)
 - settings: user_id (uuid, unique), data (jsonb), updated_at (timestamptz)
 - plans: id (uuid, PK), owner_id (uuid), title (text), type (text), description (text), created_at, updated_at
 - plan_items: id (uuid, PK, default), plan_id (uuid, FK), title (text), details (text), order_index (int)
@@ -64,8 +64,28 @@ In development builds only (NODE_ENV=development), a "Seed Sample Data" button a
 
 This is useful when Node execution isn't available.
 
-## Troubleshooting
+## Sending magic links for admins (dev flow)
 
-- If you see permission errors, review RLS policies or use a service role key in SUPABASE_KEY for seeding.
-- Ensure the expected table/column names match your database schema. Adjust the script if needed.
-- The Node seeding script logs a summary table of inserted/updated counts.
+- CLI: `node scripts/sendMagicLink.js --email="nutriekspert@gmail.com" --admin`
+  - Script triggers `auth.signInWithOtp` and attempts to upsert a `profiles` row with `role='admin'` immediately if the user exists (service role key recommended).
+  - If the user does not exist yet (unconfirmed), a deferred upsert occurs on the first login (see below).
+- UI (dev only): In Settings → Profile, use the "Send Magic Link (Dev)" button to trigger `auth.signInWithOtp` from the browser client.
+
+## Deferred admin assignment on first login (development safeguard)
+
+The app checks `window.__DEV_ADMIN_EMAILS` in development. If the logged-in user's email is listed, the app upserts the profile with `role='admin'` and `onboarding_complete=true`.
+
+Example (place in a dev-only bootstrap script or index.html for local runs):
+<script>
+  window.__DEV_ADMIN_EMAILS = ['nutriekspert@gmail.com'];
+</script>
+
+This behavior is ignored in production builds.
+
+## Redirect handling
+
+The magic link uses `getURL('/auth/callback')`, which resolves using `REACT_APP_SITE_URL` if present and defaults to `http://localhost:3000`.
+
+## Expected result
+
+After sending a magic link and completing sign-in, the `profiles` row for the user will have `role=admin` and `onboarding_complete=true`.

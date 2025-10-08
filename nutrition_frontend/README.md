@@ -64,6 +64,23 @@ Add these to `nutrition_frontend/.env`:
 
 Refer to `.env.example` for details. Do not commit real secrets.
 
+## Dev Admin Magic Link
+
+You can send a Supabase passwordless magic link and seed an admin profile:
+
+- CLI:
+  - Ensure env vars are set: `REACT_APP_SUPABASE_URL`, `REACT_APP_SUPABASE_KEY` (service role key preferred for seeding).
+  - Run: `node scripts/sendMagicLink.js --email="nutriekspert@gmail.com" --admin`
+  - A deferred upsert will set role=admin on first login if the user does not exist yet.
+
+- UI (dev only):
+  - Open Settings → Profile.
+  - Use the "Send Magic Link (Dev)" button. It calls an in-app helper to trigger the magic link to the email shown.
+
+Notes:
+- The redirect is configured via getURL('/auth/callback').
+- On first login in development, if `window.__DEV_ADMIN_EMAILS` includes the user email, the profile is upserted with role=admin. See SUPABASE_SETUP.md.
+
 ## Seeding sample data (Supabase)
 
 For quick UI validation, you can seed sample data into your Supabase project.

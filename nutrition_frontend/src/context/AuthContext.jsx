@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { getSupabaseClient } from '../lib/supabaseClient';
 import { getOrCreateProfile as svcGetOrCreateProfile } from '../lib/supabaseServices';
+import { ensureAdminOnFirstLogin } from '../lib/supabaseProfiles';
 
 /**
  * PUBLIC_INTERFACE
@@ -38,7 +39,7 @@ async function fetchUserProfile(supabase, userId) {
     if (!userId) return { profile: null, error: null };
     const { data, error } = await supabase
       .from('profiles')
-      .select('id, role, onboarding_complete')
+      .select('id, role, onboarding_complete, email, full_name, avatar_url')
       .eq('id', userId)
       .maybeSingle();
     if (error) return { profile: null, error };
@@ -75,6 +76,15 @@ export function AuthProvider({ children }) {
         setUser(sessionUser);
 
         if (sessionUser?.id) {
+          // Dev-only admin ensure
+          try {
+            if (process.env.NODE_ENV !== 'production' && Array.isArray(window.__DEV_ADMIN_EMAILS)) {
+              await ensureAdminOnFirstLogin({ user: sessionUser }, window.__DEV_ADMIN_EMAILS);
+            }
+          } catch (e) {
+            // swallow dev-only errors
+          }
+
           let { profile: p } = await fetchUserProfile(supabase, sessionUser.id);
           // If profile missing, try to create a default shell
           if (!p) {
@@ -100,7 +110,17 @@ export function AuthProvider({ children }) {
     } = supabase.auth.onAuthStateChange(async (_event, session) => {
       const sUser = session?.user || null;
       setUser(sUser);
+
       if (sUser?.id) {
+        // Dev-only admin ensure
+        try {
+          if (process.env.NODE_ENV !== 'production' && Array.isArray(window.__DEV_ADMIN_EMAILS)) {
+            await ensureAdminOnFirstLogin({ user: sUser }, window.__DEV_ADMIN_EMAILS);
+          }
+        } catch (e) {
+          // swallow dev-only errors
+        }
+
         let { profile: p } = await fetchUserProfile(supabase, sUser.id);
         if (!p) {
           const { data: created } = await svcGetOrCreateProfile(sUser.id, {});
@@ -141,10 +161,10 @@ export function AuthProvider({ children }) {
      * emailRedirectTo should be set by caller; will fallback to window.location.origin if not provided.
      */
     try {
-      const { getURL } = await import('../utils/getURL');
+      const { default: getURLDefault, getURL } = await import('../utils/getURL');
+      const resolvedGetURL = typeof getURL === 'function' ? getURL : (typeof getURLDefault === 'function' ? getURLDefault : (p) => (window?.location ? `${window.location.origin}${p || ''}` : `http://localhost:3000${p || ''}`));
       const emailRedirectTo =
-        options.emailRedirectTo ||
-        `${getURL()}auth/login`;
+        options.emailRedirectTo || resolvedGetURL('/auth/callback');
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -180,10 +200,9 @@ export function AuthProvider({ children }) {
      * Returns { data, error }
      */
     try {
-      const { getURL } = await import('../utils/getURL');
+      const { default: getURL } = await import('../utils/getURL');
       const emailRedirectTo =
-        options.emailRedirectTo ||
-        `${getURL()}auth/login`;
+        options.emailRedirectTo || getURL('/auth/callback');
       const { data, error } = await supabase.auth.signInWithOtp({
         email,
         options: { emailRedirectTo, shouldCreateUser: true },
@@ -201,8 +220,9 @@ export function AuthProvider({ children }) {
      * Returns { data, error }
      */
     try {
-      const { getURL } = await import('../utils/getURL');
-      const redirectTo = `${getURL()}auth/login`;
+      const { default: getURLDefault, getURL } = await import('../utils/getURL');
+      const resolvedGetURL = typeof getURL === 'function' ? getURL : (typeof getURLDefault === 'function' ? getURLDefault : (p) => (window?.location ? `${window.location.origin}${p || ''}` : `http://localhost:3000${p || ''}`));
+      const redirectTo = resolvedGetURL('/auth/callback');
       const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo,
       });

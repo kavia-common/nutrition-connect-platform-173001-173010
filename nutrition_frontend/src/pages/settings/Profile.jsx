@@ -3,6 +3,7 @@ import { Card, Input, Button, Loader } from '../../components/common';
 import { useAuth } from '../../context/AuthContext';
 import { upsertProfile } from '../../lib/supabaseServices';
 import { runMinimalDevSeed } from '../../lib/devSeedHelper';
+import { sendMagicLink } from '../../lib/devSeedHelper';
 
 /**
  * PUBLIC_INTERFACE
@@ -10,6 +11,7 @@ import { runMinimalDevSeed } from '../../lib/devSeedHelper';
  * Basic account profile editing: display name and avatar URL.
  * Integrates with Supabase profiles table via upsertProfile.
  * Adds a developer-only seeding button in development.
+ * Adds a developer-only button to send a magic link to any email.
  */
 export default function Profile() {
   const { user, profile, refreshProfile } = useAuth();
@@ -19,12 +21,19 @@ export default function Profile() {
   const [seeding, setSeeding] = useState(false);
   const [seedMsg, setSeedMsg] = useState('');
 
+  // Dev-only magic link sender
+  const [devEmail, setDevEmail] = useState('');
+
   useEffect(() => {
     setForm({
       full_name: profile?.full_name || '',
       avatar_url: profile?.avatar_url || '',
     });
   }, [profile?.full_name, profile?.avatar_url]);
+
+  useEffect(() => {
+    setDevEmail(user?.email || '');
+  }, [user?.email]);
 
   async function onSubmit(e) {
     e.preventDefault();
@@ -60,6 +69,17 @@ export default function Profile() {
       setSeeding(false);
     }
   }, [profile?.id, profile?.role]);
+
+  const handleSendMagicDev = useCallback(async () => {
+    if (process.env.NODE_ENV === 'production') return;
+    if (!devEmail) return;
+    try {
+      await sendMagicLink(devEmail);
+      alert(`Magic link sent to ${devEmail}`);
+    } catch (e) {
+      alert(`Failed to send magic link: ${e.message || 'Unknown error'}`);
+    }
+  }, [devEmail]);
 
   if (!user) {
     return (
@@ -122,14 +142,30 @@ export default function Profile() {
       </Card>
 
       {process.env.NODE_ENV === 'development' && (
-        <Card style={{ marginTop: 16 }}>
-          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-            <Button onClick={handleSeed} disabled={seeding} variant="outline">
-              {seeding ? 'Seeding…' : 'Seed Sample Data (Dev)'}
-            </Button>
-            {seedMsg && <span style={{ color: 'var(--text-secondary)' }}>{seedMsg}</span>}
-          </div>
-        </Card>
+        <>
+          <Card style={{ marginTop: 16 }}>
+            <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+              <Button onClick={handleSeed} disabled={seeding} variant="outline">
+                {seeding ? 'Seeding…' : 'Seed Sample Data (Dev)'}
+              </Button>
+              {seedMsg && <span style={{ color: 'var(--text-secondary)' }}>{seedMsg}</span>}
+            </div>
+          </Card>
+
+          <Card style={{ marginTop: 16 }}>
+            <div style={{ display: 'grid', gap: 8 }}>
+              <Input
+                label="Dev Email"
+                value={devEmail}
+                onChange={(e) => setDevEmail(e.target.value)}
+                placeholder="user@example.com"
+              />
+              <Button variant="secondary" onClick={handleSendMagicDev}>
+                Send Magic Link (Dev)
+              </Button>
+            </div>
+          </Card>
+        </>
       )}
     </div>
   );
