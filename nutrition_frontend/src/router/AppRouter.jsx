@@ -7,6 +7,10 @@ import ResetPassword from '../components/auth/ResetPassword';
 import { ProtectedRoute, RoleRoute } from './routeGuards';
 import Home from '../pages/Home';
 import Dashboard from '../pages/Dashboard';
+import DashboardLanding from '../pages/dashboards/DashboardLanding';
+import ClientDashboard from '../pages/dashboards/ClientDashboard';
+import CoachDashboard from '../pages/dashboards/CoachDashboard';
+import AdminDashboard from '../pages/dashboards/AdminDashboard';
 import Plans from '../pages/Plans';
 import Chat from '../pages/Chat';
 import Analytics from '../pages/Analytics';
@@ -49,7 +53,12 @@ export default function AppRouter() {
 
       {/* Protected application routes - onboarding incomplete users are redirected */}
       <Route element={<ProtectedRoute />}>
-        <Route path="/dashboard" element={<Dashboard />} />
+        {/* Role-aware dashboard landing */}
+        <Route path="/dashboard" element={<DashboardLanding />} />
+        {/* Specific dashboards */}
+        <Route path="/dashboard/client" element={<ClientDashboard />} />
+        <Route path="/dashboard/coach" element={<CoachDashboard />} />
+        <Route path="/dashboard/admin" element={<AdminDashboard />} />
         <Route path="/plans" element={<Plans />} />
         <Route path="/chat" element={<Chat />} />
         {/* Example role-guarded route for analytics (coaches/admins only) */}
