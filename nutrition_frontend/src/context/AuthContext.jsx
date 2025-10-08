@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { getSupabaseClient } from '../lib/supabaseClient';
+import { getOrCreateProfile as svcGetOrCreateProfile } from '../lib/supabaseServices';
 
 /**
  * PUBLIC_INTERFACE
@@ -16,6 +17,7 @@ const AuthContext = createContext({
   signOut: async () => ({ error: null }),
   sendMagicLink: async () => ({ data: null, error: null }),
   resetPassword: async () => ({ data: null, error: null }),
+  refreshProfile: async () => ({ profile: null, error: null }),
 });
 
 /**
@@ -73,7 +75,12 @@ export function AuthProvider({ children }) {
         setUser(sessionUser);
 
         if (sessionUser?.id) {
-          const { profile: p } = await fetchUserProfile(supabase, sessionUser.id);
+          let { profile: p } = await fetchUserProfile(supabase, sessionUser.id);
+          // If profile missing, try to create a default shell
+          if (!p) {
+            const { data: created } = await svcGetOrCreateProfile(sessionUser.id, {});
+            p = created || null;
+          }
           if (isMounted) setProfile(p);
         } else {
           if (isMounted) setProfile(null);
@@ -94,7 +101,11 @@ export function AuthProvider({ children }) {
       const sUser = session?.user || null;
       setUser(sUser);
       if (sUser?.id) {
-        const { profile: p } = await fetchUserProfile(supabase, sUser.id);
+        let { profile: p } = await fetchUserProfile(supabase, sUser.id);
+        if (!p) {
+          const { data: created } = await svcGetOrCreateProfile(sUser.id, {});
+          p = created || null;
+        }
         setProfile(p);
       } else {
         setProfile(null);
@@ -198,6 +209,22 @@ export function AuthProvider({ children }) {
     }
   }
 
+  // PUBLIC_INTERFACE
+  async function refreshProfile() {
+    try {
+      if (!user?.id) return { profile: null, error: null };
+      let { profile: p, error } = await fetchUserProfile(supabase, user.id);
+      if (!p && !error) {
+        const { data: created } = await svcGetOrCreateProfile(user.id, {});
+        p = created || null;
+      }
+      setProfile(p);
+      return { profile: p, error: null };
+    } catch (e) {
+      return { profile: null, error: e };
+    }
+  }
+
   const value = useMemo(
     () => ({
       user,
@@ -208,6 +235,7 @@ export function AuthProvider({ children }) {
       signOut,
       sendMagicLink,
       resetPassword,
+      refreshProfile,
     }),
     [user, profile, loading]
   );

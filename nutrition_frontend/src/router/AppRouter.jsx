@@ -13,6 +13,7 @@ import Analytics from '../pages/Analytics';
 import Settings from '../pages/Settings';
 import ClientOnboarding from '../pages/onboarding/ClientOnboarding';
 import CoachOnboarding from '../pages/onboarding/CoachOnboarding';
+import { useAuth } from '../context/AuthContext';
 
 /**
  * PUBLIC_INTERFACE
@@ -34,8 +35,13 @@ export default function AppRouter() {
       {/* Onboarding routes: allow access while onboarding, no redirect away */}
       <Route element={<ProtectedRoute allowOnboarding />}>
         <Route path="/onboarding">
-          {/* Index could redirect based on role to the specific path */}
-          <Route index element={<Navigate to="client" replace />} />
+          {/* Index redirect based on role */}
+          <Route
+            index
+            element={
+              <RoleBasedOnboardingRedirect />
+            }
+          />
           <Route path="client" element={<ClientOnboarding />} />
           <Route path="coach" element={<CoachOnboarding />} />
         </Route>
@@ -57,4 +63,16 @@ export default function AppRouter() {
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
+}
+
+/**
+ * PUBLIC_INTERFACE
+ * RoleBasedOnboardingRedirect
+ * Redirects to /onboarding/coach or /onboarding/client based on profile.role
+ */
+function RoleBasedOnboardingRedirect() {
+  const { profile } = useAuth();
+  const role = profile?.role || 'client';
+  const target = role === 'coach' ? '/onboarding/coach' : '/onboarding/client';
+  return <Navigate to={target} replace />;
 }
