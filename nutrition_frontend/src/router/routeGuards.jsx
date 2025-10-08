@@ -50,7 +50,7 @@ export function RoleRoute({ roles = [] }) {
 
   if (loading) {
     return (
-      <div className="container">
+      <div className="container" role="status" aria-live="polite" aria-busy="true">
         <div className="card">Loading...</div>
       </div>
     );
@@ -67,8 +67,16 @@ export function RoleRoute({ roles = [] }) {
     return <Navigate to={target} replace />;
   }
 
-  if (!roles.includes(profile?.role)) {
-    // Authenticated but wrong role -> send to dashboard
+  const userRole = profile?.role;
+  if (!roles.includes(userRole)) {
+    // If attempting to access analytics with wrong role, route to role-based analytics landing
+    const path = location?.pathname || '';
+    if (path.startsWith('/analytics')) {
+      if (userRole === 'coach') return <Navigate to="/analytics/coach" replace />;
+      if (userRole === 'admin') return <Navigate to="/analytics/admin" replace />;
+      return <Navigate to="/analytics/client" replace />;
+    }
+    // Otherwise, send to general dashboard landing
     return <Navigate to="/dashboard" replace />;
   }
 
