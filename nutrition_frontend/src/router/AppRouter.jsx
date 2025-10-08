@@ -22,6 +22,9 @@ import ClientProgress from '../pages/analytics/ClientProgress';
 import CoachAnalytics from '../pages/analytics/CoachAnalytics';
 import AdminAnalytics from '../pages/analytics/AdminAnalytics';
 import Settings from '../pages/Settings';
+import Profile from '../pages/settings/Profile';
+import Notifications from '../pages/settings/Notifications';
+import Billing from '../pages/settings/Billing';
 import ClientOnboarding from '../pages/onboarding/ClientOnboarding';
 import CoachOnboarding from '../pages/onboarding/CoachOnboarding';
 import { useAuth } from '../context/AuthContext';
@@ -92,7 +95,12 @@ export default function AppRouter() {
             <Route path="admin" element={<AdminAnalytics />} />
           </Route>
         </Route>
-        <Route path="/settings" element={<Settings />} />
+        <Route path="/settings" element={<Settings />}>
+          <Route index element={<Navigate to="/settings/profile" replace />} />
+          <Route path="profile" element={<Profile />} />
+          <Route path="notifications" element={<Notifications />} />
+          <Route path="billing" element={<Billing />} />
+        </Route>
       </Route>
 
       {/* Fallback */}
